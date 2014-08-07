@@ -87,7 +87,7 @@ function incioLectura(file_nmap, callback) {
         var lines = data.split('\n');
         lines.forEach(parseLine);
 
-        callback(hosts);
+        callback();
 
     });
 
@@ -144,7 +144,7 @@ function parsePort(port,host) {
 
 
 
-incioLectura(gnmapFile, function(response) {
+incioLectura(gnmapFile, function() {
 
     if ((arg_json) || (arg_all))
         console.log(JSON.stringify(hosts, null, 2));
