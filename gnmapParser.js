@@ -16,6 +16,7 @@ var arg_json = false;
 var arg_list = false;
 var arg_human = false;
 var arg_all = false;
+var arg_csv = false;
 var output = false;
 var out_ok = false;
 
@@ -69,7 +70,7 @@ function help(output) {
     else {
         console.error('**AVAILABLE OUTPUTS**');
         console.error('-> -json :  json formatted output with information such as: open ports, protocols and IPs');
-        console.error('-> -csv :  csv formatted output with information such as: open ports, protocols and IPs (output: ip;status;port;proto;info)');
+        console.error('-> -csv :  csv formatted output with information such as: open ports, protocols and IPs (out: ip;status;port;proto;service;product)');
         console.error('-> -human : human-readable format including the IPs and ports');
         console.error('-> -list : outputs two lists: one with the ports information and the other with the unique open ports on all the IPs');
         console.error('-> -all : all of the aforementioned outputs combined in a single parameter');
@@ -115,7 +116,7 @@ function parseLine(line)
         var host = {
             ip: '',
             ports: [{
-                number:'',prot:'',info:''
+                number:'',prot:'',info:'',version:''
             }]
         }
 
@@ -145,7 +146,8 @@ function parsePort(port,host) {
     host.ports.push({
         "number": port_list[0].replace(' ',''),
         "prot": port_list[2],
-        "info": port_list[3]
+        "info": port_list[3],
+        "version": port_list[4]
         });
 }
 
@@ -179,21 +181,22 @@ incioLectura(gnmapFile, function() {
         console.log('');
     }
 
-    if ((arg_csv) || (arg_all)) {
-        console.log('ip;state;port;protocol;info');
+    if ( (arg_csv) || (arg_all) ) {
+        console.log('ip;state;port;protocol;service;product');
+        
         for (var i=0; i < hosts.length; i++) {
             for (var ii=0; ii < hosts[i].ports.length; ii++) {
                 var pedo = ports_list.indexOf(hosts[i].ports[ii].number);
 
                 if ( (hosts[i].ports[ii].number != '') ){
-                    console.log( (hosts[i].ip)+';open;'+hosts[i].ports[ii].number+';'+hosts[i].ports[ii].prot+';'+hosts[i].ports[ii].info);
+                    console.log( (hosts[i].ip)+';open;'+hosts[i].ports[ii].number+';'+hosts[i].ports[ii].prot+';'+hosts[i].ports[ii].info+
+                        ';'+hosts[i].ports[ii].version.replace(/;/g,',')); 
                 }
 
-            } //console.log('');
+            } 
+        }
     }
 
-
-    }
 
     if ((arg_human) || (arg_all)) {
         for (var i=0; i < hosts.length; i++) {
@@ -203,14 +206,11 @@ incioLectura(gnmapFile, function() {
                 var pedo = ports_list.indexOf(hosts[i].ports[ii].number);
                
                 if ( (hosts[i].ports[ii].number != '') ){
-                    console.log('+- '+hosts[i].ports[ii].number+'/'+hosts[i].ports[ii].prot+'\t'+hosts[i].ports[ii].info);
+                    console.log('+- '+hosts[i].ports[ii].number+'/'+hosts[i].ports[ii].prot+'\t'+hosts[i].ports[ii].info+'\t'+hosts[i].ports[ii].version);
                 }
 
             } console.log('');
     }
 }
-
-});
-
 
 });
