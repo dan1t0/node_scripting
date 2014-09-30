@@ -44,10 +44,15 @@ if (process.argv.length === 4) {
         arg_human = true;
         out_ok = true;
     }
+    if ((process.argv.indexOf('-csv')!= -1)) {
+        arg_csv = true;
+        out_ok = true;
+    }
     if ((process.argv.indexOf('-all')!= -1)) {
         arg_all = true;
         out_ok = true;
     }
+
     if (!out_ok)
         help(output);
 };
@@ -57,13 +62,14 @@ if (process.argv.length === 4) {
 
 
 function help(output) {
-    console.error('Usage: '+process.argv[0]+' '+process.argv[1]+' file.gnmap'+' -[json, human, list, all]');
+    console.error('Usage: '+process.argv[0]+' '+process.argv[1]+' file.gnmap'+' -[json, human, list, all, csv]');
     
     if (!output)
         console.error('       Type -h for more info about output formats');
     else {
         console.error('**AVAILABLE OUTPUTS**');
         console.error('-> -json :  json formatted output with information such as: open ports, protocols and IPs');
+        console.error('-> -csv :  csv formatted output with information such as: open ports, protocols and IPs (output: ip;status;port;proto;info)');
         console.error('-> -human : human-readable format including the IPs and ports');
         console.error('-> -list : outputs two lists: one with the ports information and the other with the unique open ports on all the IPs');
         console.error('-> -all : all of the aforementioned outputs combined in a single parameter');
@@ -87,6 +93,8 @@ function incioLectura(file_nmap, callback) {
         var lines = data.split('\n');
         lines.forEach(parseLine);
 
+
+        //callback(hosts);
         callback();
 
     });
@@ -144,6 +152,8 @@ function parsePort(port,host) {
 
 
 
+
+//incioLectura(gnmapFile, function(response) {
 incioLectura(gnmapFile, function() {
 
     if ((arg_json) || (arg_all))
@@ -169,11 +179,25 @@ incioLectura(gnmapFile, function() {
         console.log('');
     }
 
+    if ((arg_csv) || (arg_all)) {
+        console.log('ip;state;port;protocol;info');
+        for (var i=0; i < hosts.length; i++) {
+            for (var ii=0; ii < hosts[i].ports.length; ii++) {
+                var pedo = ports_list.indexOf(hosts[i].ports[ii].number);
 
+                if ( (hosts[i].ports[ii].number != '') ){
+                    console.log( (hosts[i].ip)+';open;'+hosts[i].ports[ii].number+';'+hosts[i].ports[ii].prot+';'+hosts[i].ports[ii].info);
+                }
+
+            } //console.log('');
+    }
+
+
+    }
 
     if ((arg_human) || (arg_all)) {
         for (var i=0; i < hosts.length; i++) {
-            console.log('- '+hosts[i].ip);
+            console.log('* '+hosts[i].ip);
             
             for (var ii=0; ii < hosts[i].ports.length; ii++) {
                 var pedo = ports_list.indexOf(hosts[i].ports[ii].number);
@@ -185,5 +209,8 @@ incioLectura(gnmapFile, function() {
             } console.log('');
     }
 }
+
+});
+
 
 });
